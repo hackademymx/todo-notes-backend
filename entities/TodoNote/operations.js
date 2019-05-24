@@ -1,15 +1,7 @@
-const app = require('express')();
-const bodyParser = require('body-parser');
-const { TodoNote } = require('./db/schemas');
+const { TodoNote } = require('./schema');
 
-// Se usa para poder revisar el contenido del body dentro de las peticiones http
-app.use(bodyParser.json());
+const createNewTodoNote = (req, res) => {
 
-app.get('/', (req, res) => res.send('TODO api de Rodrigo'));
-
-// Create
-app.post('/todo', (req, res) => {
-  // Crear nota
   const {
     title,
     body,
@@ -22,19 +14,17 @@ app.post('/todo', (req, res) => {
       ? res.send('Ocurrió un error')
       : res.send('Nota guardada con éxito');
   });
+};
 
-});
-
-// Read
-app.get('/todos', (req, res) => {
+const getAllTodoNotes = (req, res) => {
   TodoNote.find((err, todosList) => {
     return err
       ? res.send('Ocurrió un error')
       : res.send(todosList);
   });
-});
+};
 
-app.get('/todos/:documentId', (req, res) => {
+const getSpecificTodoNote = (req, res) => {
   const { documentId } = req.params;
 
   TodoNote.find({ _id: documentId }, (err, result) => {
@@ -42,10 +32,9 @@ app.get('/todos/:documentId', (req, res) => {
       ? res.send('Ocurrió un error')
       : res.send(result[0]);
   });
-});
+};
 
-// Update
-app.patch('/todo', (req, res) => {
+const updateSpecificTodoNote = (req, res) => {
   const { documentId, title } = req.body;
 
   TodoNote.find({ _id: documentId }, (err, result) => {
@@ -57,16 +46,21 @@ app.patch('/todo', (req, res) => {
         : res.send('Nota editada con éxito');
     })
   });
-});
+};
 
-// Delete
-app.delete('/todo', (req, res) => {
+const deleteSpecificNote = (req, res) => {
   const { documentId, title } = req.body;
   TodoNote.findOneAndDelete({ _id: documentId }, (err, result) => {
     return err
       ? res.send('Ocurrió un error')
       : res.send('Nota borrada con éxito');
   });
-});
+};
 
-app.listen(5000, () => console.log('Servidor levantado'));
+module.exports = {
+  createNewTodoNote,
+  getAllTodoNotes,
+  getSpecificTodoNote,
+  updateSpecificTodoNote,
+  deleteSpecificNote
+};

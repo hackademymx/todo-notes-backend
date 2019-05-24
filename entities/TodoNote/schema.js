@@ -1,4 +1,4 @@
-const { mongoose } = require('./db-connection');
+const { mongoose } = require('../../db/db-connection');
 
 const todoSchema = new mongoose.Schema({
   title: String,
