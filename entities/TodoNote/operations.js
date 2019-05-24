@@ -1,4 +1,5 @@
 const { TodoNote } = require('./schema');
+const { mongoResponse } = require('../../mixins/mongo-mixins');
 
 const createNewTodoNote = (req, res) => {
 
@@ -9,52 +10,32 @@ const createNewTodoNote = (req, res) => {
   } = req.body;
 
   const newTodo = new TodoNote({ title, body, date });
-  newTodo.save((err, savedObject) => {
-    return err
-      ? res.send('Ocurrió un error')
-      : res.send('Nota guardada con éxito');
-  });
+  return mongoResponse(res, newTodo.save());
+
 };
 
-const getAllTodoNotes = (req, res) => {
-  TodoNote.find((err, todosList) => {
-    return err
-      ? res.send('Ocurrió un error')
-      : res.send(todosList);
-  });
-};
+const getAllTodoNotes = (req, res) => mongoResponse(res, TodoNote.find());
 
 const getSpecificTodoNote = (req, res) => {
   const { documentId } = req.params;
-
-  TodoNote.find({ _id: documentId }, (err, result) => {
-    return err
-      ? res.send('Ocurrió un error')
-      : res.send(result[0]);
-  });
+  return mongoResponse(res, TodoNote.find({ _id: documentId }));
 };
 
 const updateSpecificTodoNote = (req, res) => {
   const { documentId, title } = req.body;
 
-  TodoNote.find({ _id: documentId }, (err, result) => {
-    const editedNote = new TodoNote(result[0]);
-    editedNote.title = title;
-    editedNote.save((err, savedObject) => {
-      return err
-        ? res.send('Ocurrió un error')
-        : res.send('Nota editada con éxito');
+  return TodoNote.find({ _id: documentId })
+    .then(result => {
+      const editedNote = new TodoNote(result[0]);
+      editedNote.title = title;
+      return mongoResponse(res, editedNote.save());
     })
-  });
+    .catch(err => sendError(err));
 };
 
 const deleteSpecificNote = (req, res) => {
-  const { documentId, title } = req.body;
-  TodoNote.findOneAndDelete({ _id: documentId }, (err, result) => {
-    return err
-      ? res.send('Ocurrió un error')
-      : res.send('Nota borrada con éxito');
-  });
+  const { documentId } = req.body;
+  return mongoResponse(res, TodoNote.findOneAndDelete({ _id: documentId }));
 };
 
 module.exports = {
