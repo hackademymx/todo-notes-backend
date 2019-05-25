@@ -34,7 +34,7 @@ const updateSpecificTodoNote = (req, res) => {
 };
 
 const deleteSpecificNote = (req, res) => {
-  const { documentId } = req.body;
+  const { documentId } = req.query;
   return mongoResponse(res, TodoNote.findOneAndDelete({ _id: documentId }));
 };
 
